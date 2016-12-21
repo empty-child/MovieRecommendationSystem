@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Kursach.Models.ApplicationRole>
+
+@{
+    ViewBag.Title = "Роли";
+}
+
+<h2>Роли</h2>
+<table class="table">
+    <tr>
+        <th>Название</th>
+        <th>Описание</th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.Description</td>
+            <td>
+                @Html.ActionLink("Отредактировать", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Удалить" ,"Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
+</table>
+@Html.ActionLink("Создать", "Create", "Roles") | @Html.ActionLink("Назначение ролей", "UserRole", "Roles")
