@@ -166,21 +166,22 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.cs" />
+    <Compile Include="AuthDirectory\201612232040167_Initial.cs" />
+    <Compile Include="AuthDirectory\201612232040167_Initial.Designer.cs">
+      <DependentUpon>201612232040167_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AuthDirectory\Configuration.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
+    <Compile Include="DataMigrations\201612232312533_Initial.cs" />
+    <Compile Include="DataMigrations\201612232312533_Initial.Designer.cs">
+      <DependentUpon>201612232312533_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataMigrations\Configuration.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201612182321334_InitialCreate.cs" />
-    <Compile Include="Migrations\201612182321334_InitialCreate.Designer.cs">
-      <DependentUpon>201612182321334_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201612202329563_DataMigration.cs" />
-    <Compile Include="Migrations\201612202329563_DataMigration.Designer.cs">
-      <DependentUpon>201612202329563_DataMigration.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ApplicationContext.cs" />
     <Compile Include="Models\ApplicationRole.cs" />
     <Compile Include="Models\ApplicationRoleManager.cs" />
@@ -194,10 +195,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\MovieRatingDB.mdf" />
-    <Content Include="App_Data\MovieRatingDB_log.ldf">
-      <DependentUpon>MovieRatingDB.mdf</DependentUpon>
-    </Content>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="favicon.ico" />
@@ -255,11 +252,11 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201612182321334_InitialCreate.resx">
-      <DependentUpon>201612182321334_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="AuthDirectory\201612232040167_Initial.resx">
+      <DependentUpon>201612232040167_Initial.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201612202329563_DataMigration.resx">
-      <DependentUpon>201612202329563_DataMigration.cs</DependentUpon>
+    <EmbeddedResource Include="DataMigrations\201612232312533_Initial.resx">
+      <DependentUpon>201612232312533_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

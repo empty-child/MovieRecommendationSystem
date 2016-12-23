@@ -65,10 +65,28 @@ namespace Kursach.Controllers
             
 
             DataTable dt = new DataTable();
-            dt.Columns.AddRange(new DataColumn[4] { new DataColumn("UserID", typeof(int)),
+
+            /* moviesmodel
+            dt.Columns.AddRange(new DataColumn[4] {new DataColumn("ID", typeof(int)),
+            new DataColumn("MovieID", typeof(int)),
+            new DataColumn("Title", typeof(string)),
+            new DataColumn("Genres",typeof(string))});
+            */
+
+            /* linksmodels
+            dt.Columns.AddRange(new DataColumn[4] {new DataColumn("LinksModelsID", typeof(int)),
+            new DataColumn("MovieID", typeof(int)),
+            new DataColumn("ImdbID", typeof(string)),
+            new DataColumn("TmdbID",typeof(string))});
+            */
+
+            
+            dt.Columns.AddRange(new DataColumn[5] {new DataColumn("RatingsModelsID", typeof(int)),
+            new DataColumn("UserID", typeof(int)),
             new DataColumn("MovieID", typeof(int)),
             new DataColumn("Rating",typeof(float)),
             new DataColumn("Timestamp",typeof(long))});
+            
 
 
             string csvData = Server.MapPath("~/App_Data/Upload/" + fileName);
@@ -79,6 +97,7 @@ namespace Kursach.Controllers
             parser.HasFieldsEnclosedInQuotes = true;
             parser.SetDelimiters(",");
 
+            int it = 1;
             string[] fields;
             bool colNames = true;
             while (!parser.EndOfData)
@@ -88,18 +107,21 @@ namespace Kursach.Controllers
                 {
                     dt.Rows.Add();
                     int i = 0;
+                    dt.Rows[dt.Rows.Count - 1][i] = it;
+                    i++;
                     foreach (string field in fields)
                     {
                         dt.Rows[dt.Rows.Count - 1][i] = field.Replace('.', ',');
                         i++;
                     }
+                    it++;
                 }
                 else colNames = false;
             }
 
             parser.Close();
 
-            string consString = ConfigurationManager.ConnectionStrings["CommonModel"].ConnectionString;
+            string consString = ConfigurationManager.ConnectionStrings["CommonContext"].ConnectionString;
             using (SqlConnection con = new SqlConnection(consString))
             {
                 using (SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(con))

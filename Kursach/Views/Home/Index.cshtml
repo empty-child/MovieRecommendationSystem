@@ -23,9 +23,11 @@
                     <td>@Html.DisplayFor(modelItem => item.Genres)</td>
                     <td>@using (Html.BeginForm())
                     {
-                        <input type="hidden" value="@User.Identity.GetUserId()" name="InnerUserID" />
-                        <input type="hidden" value="@item.MovieID" name="MovieID" />
+                        <input type="hidden" value="0" name="InnerUserID" />
+                        <input type="hidden" value="@User.Identity.GetUserId()" name="LocalID" />
                         <input type="text" name="Rating" />
+                        <input type="hidden" value="@item.MovieID" name="MovieID" />
+                        <input type="hidden" value="@item" name="Movies" />
                         <input type="submit" value="Отправить" />
                          <!--<div class="form-group col-xs-3">
                             <label for="Rating">Оценка:</label>

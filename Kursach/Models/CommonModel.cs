@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -9,6 +10,7 @@ namespace Kursach.Models
     public class MoviesModel
     {
         [Key]
+        public int ID { get; set; }
         public int MovieID { get; set; }
         public string Title { get; set; }
         public string Genres { get; set; }
@@ -27,8 +29,11 @@ namespace Kursach.Models
 
     public class LinksModel
     {
-        [Key]
+        public int LinksModelID { get; set; }
+
+        [ForeignKey("Movies")]
         public int MovieID { get; set; }
+
         public string ImdbID { get; set; }
         public string TmdbID { get; set; }
 
@@ -37,9 +42,12 @@ namespace Kursach.Models
 
     public class RatingsModel
     {
-        [Key]
+        public int RatingsModelID { get; set; }
         public int UserID { get; set; }
+
+        [ForeignKey("Movies")]
         public int MovieID { get; set; }
+
         public float Rating { get; set; }
         public long Timestamp { get; set; }
 
@@ -48,10 +56,12 @@ namespace Kursach.Models
 
     public class InnerUser
     {
-        [Key]
-        public string InnerUserID { get; set; }
-        public int MovieID { get; set; }
+        public int InnerUserID { get; set; }
+        public string LocalID { get; set; }
         public float Rating { get; set; }
+
+        [ForeignKey("Movies")]
+        public int MovieID { get; set; }
 
         public virtual MoviesModel Movies { get; set; }
     }

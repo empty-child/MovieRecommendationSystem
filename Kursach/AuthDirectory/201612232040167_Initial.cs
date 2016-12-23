@@ -1,9 +1,9 @@
-namespace Kursach.Migrations
+namespace Kursach.AuthDirectory
 {
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitialCreate : DbMigration
+    public partial class Initial : DbMigration
     {
         public override void Up()
         {
@@ -13,6 +13,8 @@ namespace Kursach.Migrations
                     {
                         Id = c.String(nullable: false, maxLength: 128),
                         Name = c.String(nullable: false, maxLength: 256),
+                        Description = c.String(),
+                        Discriminator = c.String(nullable: false, maxLength: 128),
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.Name, unique: true, name: "RoleNameIndex");
@@ -35,7 +37,6 @@ namespace Kursach.Migrations
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
-                        Year = c.Int(nullable: false),
                         Email = c.String(maxLength: 256),
                         EmailConfirmed = c.Boolean(nullable: false),
                         PasswordHash = c.String(),

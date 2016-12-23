@@ -1,16 +1,16 @@
-namespace Kursach.Migrations
+namespace Kursach.AuthDirectory
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<Kursach.Models.ApplicationContext>
+    internal sealed class AuthConfig : DbMigrationsConfiguration<Kursach.Models.ApplicationContext>
     {
-        public Configuration()
+        public AuthConfig()
         {
             AutomaticMigrationsEnabled = false;
-            ContextKey = "Kursach.Models.ApplicationContext";
+            MigrationsDirectory = @"AuthDirectory";
         }
 
         protected override void Seed(Kursach.Models.ApplicationContext context)
