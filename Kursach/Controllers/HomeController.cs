@@ -15,12 +15,31 @@ namespace Kursach.Controllers
 {
     public class HomeController : Controller
     {
-        CommonModel db = new CommonModel();
+        CommonContext db = new CommonContext();
 
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
-            var rating = db.Ratings.Include(p => p.Movies);
-            return View(rating.ToList());
+            var movies = db.Movies;
+            if (page == null)
+            {
+                return View(movies.Take(20).ToList());
+            }
+            else
+            {
+                return View(movies.Skip(0 + 20 * (int)page).Take(20).ToList());
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult Index(InnerUser data)
+        {
+            //string userID = User.Identity.GetUserId();
+            var movies = db.Movies.Where(b => b.MovieID == data.MovieID).FirstOrDefault();
+            data.Movies = movies;
+            db.InnerUsers.Add(data);
+            db.SaveChanges();
+            return View();
         }
 
         [Authorize(Roles = "admin")]

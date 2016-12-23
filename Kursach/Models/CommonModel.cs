@@ -13,13 +13,15 @@ namespace Kursach.Models
         public string Title { get; set; }
         public string Genres { get; set; }
 
-        public ICollection<LinksModel> Links { get; set; }
-        public ICollection<RatingsModel> Ratings { get; set; }
+        public virtual ICollection<LinksModel> Links { get; set; }
+        public virtual ICollection<RatingsModel> Ratings { get; set; }
+        public virtual ICollection<InnerUser> InnerUsers { get; set; }
 
         public MoviesModel()
         {
             Links = new List<LinksModel>();
             Ratings = new List<RatingsModel>();
+            InnerUsers = new List<InnerUser>();
         }
     }
 
@@ -30,7 +32,7 @@ namespace Kursach.Models
         public string ImdbID { get; set; }
         public string TmdbID { get; set; }
 
-        public MoviesModel Movies { get; set; }
+        public virtual MoviesModel Movies { get; set; }
     }
 
     public class RatingsModel
@@ -41,6 +43,16 @@ namespace Kursach.Models
         public float Rating { get; set; }
         public long Timestamp { get; set; }
 
-        public MoviesModel Movies { get; set; }
+        public virtual MoviesModel Movies { get; set; }
+    }
+
+    public class InnerUser
+    {
+        [Key]
+        public string InnerUserID { get; set; }
+        public int MovieID { get; set; }
+        public float Rating { get; set; }
+
+        public virtual MoviesModel Movies { get; set; }
     }
 }

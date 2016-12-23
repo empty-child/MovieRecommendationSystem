@@ -1,21 +1,40 @@
-﻿@model IEnumerable<Kursach.Models.RatingsModel>
+﻿@using Microsoft.AspNet.Identity
+@model IEnumerable<Kursach.Models.MoviesModel>
 @{
     ViewBag.Title = "Домашняя страница";
 }
 
-<!--
+<h2>Список картин</h2>
+
 <div>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>UserID</th>
-                <th>MovieID</th>
-                <th>Rating</th>
-                <th>Movie Name</th>
+                <th>Название фильма</th>
+                <th>Жанры</th>
+                <th>Ваша оценка</th>
             </tr>
         </thead>
         <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Genres)</td>
+                    <td>@using (Html.BeginForm())
+                    {
+                        <input type="hidden" value="@User.Identity.GetUserId()" name="InnerUserID" />
+                        <input type="hidden" value="@item.MovieID" name="MovieID" />
+                        <input type="text" name="Rating" />
+                        <input type="submit" value="Отправить" />
+                         <!--<div class="form-group col-xs-3">
+                            <label for="Rating">Оценка:</label>
+                            <input type="text" class="form-control" id="Rating">
+                            <button type="submit" class="btn btn-default">Отправить</button>
+                        </div>-->
+                    }</td>
+                </tr>
+            }
         </tbody>
     </table>
-</div>
-        -->
+</div> 
