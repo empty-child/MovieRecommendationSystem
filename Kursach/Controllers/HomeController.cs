@@ -74,18 +74,39 @@ namespace Kursach.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
+        [Authorize]
         public ActionResult Recomendation()
         {
             var relatedCoefficient = findRelatedCoefficient();
-            getRecommendations(relatedCoefficient);
-            return View();
-        }
+            var recommendation = getRecommendations(relatedCoefficient);
+            var movies = db.Movies;
+            int i = 0;
+            string[] movieTitle = new string[recommendation.Count()];
+            string[] progressBarType = new string[recommendation.Count()];
+            string[] recommendationCoefficient = new string[recommendation.Count()];
 
-        [HttpPost]
-        public ActionResult Recomendation(int id)
-        {
-
+            foreach (var dict in recommendation)
+            {
+                var recommendedMovie = movies.Where(p => p.MovieID == dict.Key).First();
+                movieTitle[i] = recommendedMovie.Title;
+                recommendationCoefficient[i] = Math.Round(dict.Value * 100, 0).ToString() + "%";
+                if(Math.Round(dict.Value * 100, 0) <= 15)
+                {
+                    progressBarType[i] = "progress-bar-danger";
+                }
+                else if(Math.Round(dict.Value * 100, 0) <= 50)
+                {
+                    progressBarType[i] = "progress-bar-warning";
+                }
+                else
+                {
+                    progressBarType[i] = "progress-bar-success";
+                }
+                i++;
+            }
+            ViewBag.movieTitle = movieTitle;
+            ViewBag.recommendationCoefficient = recommendationCoefficient;
+            ViewBag.progressBarType = progressBarType;
             return View();
         }
 
