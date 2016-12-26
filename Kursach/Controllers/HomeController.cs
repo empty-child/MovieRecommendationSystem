@@ -17,16 +17,47 @@ namespace Kursach.Controllers
     {
         CommonContext db = new CommonContext();
 
-        public ActionResult Index(int? page)
+        public ActionResult Index(int? id)
         {
             var movies = db.Movies;
-            if (page == null)
+            ViewBag.userID = User.Identity.GetUserId();
+            if (id == null)
             {
-                return View(movies.Take(20).ToList());
+                ViewBag.previousPageStat = false;
+                var model = movies.Take(20).ToList();
+                if (model.Count() < 20)
+                {
+                    ViewBag.nextPageStat = false;
+                }
+                else
+                {
+                    ViewBag.nextPageStat = true;
+                    ViewBag.nextPage = 1;
+                }
+                return View(model);
             }
             else
             {
-                return View(movies.Skip(0 + 20 * (int)page).Take(20).ToList());
+                if (id == 0)
+                {
+                    ViewBag.previousPageStat = false;
+                }
+                else
+                {
+                    ViewBag.previousPageStat = true;
+                    ViewBag.previousPage = id - 1;
+                }
+                var model = movies.OrderBy(p => p.ID).Skip(0 + 20 * (int)id).Take(20).ToList();
+                if (model.Count() < 20)
+                {
+                    ViewBag.nextPageStat = false;
+                }
+                else
+                {
+                    ViewBag.nextPageStat = true;
+                    ViewBag.nextPage = id + 1;
+                }
+                return View(model);
             }
         }
 
@@ -34,19 +65,141 @@ namespace Kursach.Controllers
         [HttpPost]
         public ActionResult Index(InnerUser data)
         {
-            //string userID = User.Identity.GetUserId();
+            string userID = User.Identity.GetUserId();
             var movies = db.Movies.Where(b => b.MovieID == data.MovieID).FirstOrDefault();
             data.Movies = movies;
+            data.LocalID = userID;
             db.InnerUsers.Add(data);
             db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public ActionResult Recomendation()
+        {
+            var relatedCoefficient = findRelatedCoefficient();
+            getRecommendations(relatedCoefficient);
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult Recomendation(int id)
+        {
+
+            return View();
+        }
+
+        private Dictionary<int,float> findRelatedCoefficient()
+        {
+            string userID = User.Identity.GetUserId();
+
+            Dictionary<int, float> relatedRating = new Dictionary<int, float>();
+            Dictionary<int, int> inclusion = new Dictionary<int, int>();
+
+            var innerRatings = db.InnerUsers.Where(n => n.LocalID == userID);
+            foreach(var score in innerRatings.Include(p => p.Movies.Ratings))
+            {
+                foreach(var userRating in score.Movies.Ratings)
+                {
+                    if (relatedRating.ContainsKey(userRating.UserID))
+                    {
+                        var sum = relatedRating[userRating.UserID];
+                        var incl = inclusion[userRating.UserID];
+                        relatedRating.Remove(userRating.UserID);
+                        inclusion.Remove(userRating.UserID);
+                        relatedRating.Add(userRating.UserID, (float)(Math.Pow((score.Rating - userRating.Rating), 2)) + sum);
+                        inclusion.Add(userRating.UserID, incl + 1);
+                    }
+                    else
+                    {
+                        inclusion.Add(userRating.UserID, 1);
+                        relatedRating.Add(userRating.UserID, (float)(Math.Pow((score.Rating - userRating.Rating), 2)));
+                    }
+                }
+            }
+
+            var topUser = inclusion.OrderByDescending(pair => pair.Value).First();
+            Dictionary<int, float> relatedCoefficient = new Dictionary<int, float>();
+            var keys = new List<int>(relatedRating.Keys);
+            foreach (int key in keys)
+            {
+                if (inclusion[key] == topUser.Value)
+                {
+                    float value = relatedRating[key];
+                    relatedRating.Remove(key);
+                    relatedCoefficient.Add(key, (1 / (1 + value)));
+                }
+            }
+            return relatedCoefficient;
+        }
+
+        private IEnumerable<KeyValuePair<int,float>> getRecommendations(Dictionary<int, float> relatedCoefficient)
+        {
+            string localID = User.Identity.GetUserId();
+            Dictionary<int, string> viewedMovies = new Dictionary<int, string>();
+            var innerRatings = db.InnerUsers.Where(p => p.LocalID == localID);
+            foreach (var record in innerRatings)
+            {
+                viewedMovies.Add(record.MovieID, record.LocalID);
+            }
+
+            var ratingBase = db.Ratings;
+            var keys = new List<int>(relatedCoefficient.Keys);
+            Dictionary<int, float> recommendationBase = new Dictionary<int, float>();
+            Dictionary<int, int> recommendationInclusion = new Dictionary<int, int>();
+            
+            foreach (int key in keys)
+            {
+                foreach(var score in ratingBase.Where(p => p.UserID == key))
+                {
+                    if (recommendationBase.ContainsKey(score.MovieID))
+                    {
+                        if (!viewedMovies.ContainsKey(score.MovieID))
+                        {
+                            var baseValue = recommendationBase[score.MovieID];
+                            var inclusionValue = recommendationInclusion[score.MovieID];
+                            recommendationBase.Remove(score.MovieID);
+                            recommendationInclusion.Remove(score.MovieID);
+                            recommendationBase.Add(score.MovieID, (score.Rating * relatedCoefficient[key]) + baseValue);
+                            recommendationInclusion.Add(score.MovieID, inclusionValue + 1);
+                        }
+                    }
+                    else
+                    {
+                        if (!viewedMovies.ContainsKey(score.MovieID))
+                        {
+                            recommendationBase.Add(score.MovieID, score.Rating * relatedCoefficient[key]);
+                            recommendationInclusion.Add(score.MovieID, 1);
+                        }
+                    }
+                }
+            }
+
+            var topInclusion = recommendationInclusion.OrderByDescending(pair => pair.Value).First().Value;
+
+            var baseKeys = new List<int>(recommendationInclusion.Keys);
+            foreach(int key in baseKeys)
+            {
+                if (recommendationInclusion[key] > topInclusion / 3)
+                {
+                    float baseValue = recommendationBase[key];
+                    recommendationBase.Remove(key);
+                    recommendationBase.Add(key, baseValue / recommendationInclusion[key]);
+                }
+                else
+                {
+                    recommendationBase.Remove(key);
+                }
+            }
+
+            var topMovie = recommendationBase.OrderByDescending(pair => pair.Value).Take(10); //.ToDictionary(pair => pair.Key, pair => pair.Value)
+            return topMovie;
         }
 
         [Authorize(Roles = "admin")]
         [HttpGet]
         public ActionResult Import()
         {
-            
             return View();
         }
 
@@ -62,7 +215,7 @@ namespace Kursach.Controllers
                 // сохраняем файл в папку Files в проекте
                 upload.SaveAs(Server.MapPath("~/App_Data/Upload/" + fileName));
             }
-            
+
 
             DataTable dt = new DataTable();
 
@@ -80,13 +233,13 @@ namespace Kursach.Controllers
             new DataColumn("TmdbID",typeof(string))});
             */
 
-            
+
             dt.Columns.AddRange(new DataColumn[5] {new DataColumn("RatingsModelsID", typeof(int)),
             new DataColumn("UserID", typeof(int)),
             new DataColumn("MovieID", typeof(int)),
             new DataColumn("Rating",typeof(float)),
             new DataColumn("Timestamp",typeof(long))});
-            
+
 
 
             string csvData = Server.MapPath("~/App_Data/Upload/" + fileName);

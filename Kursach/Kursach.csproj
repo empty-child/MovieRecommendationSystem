@@ -239,6 +239,7 @@
     <Content Include="Views\Roles\Edit.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Roles\UserRole.cshtml" />
+    <Content Include="Views\Home\Recomendation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\Upload\" />

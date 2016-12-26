@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNet.Identity
-@model IEnumerable<Kursach.Models.MoviesModel>
+﻿@model IEnumerable<Kursach.Models.MoviesModel>
 @{
     ViewBag.Title = "Домашняя страница";
 }
@@ -21,22 +20,53 @@
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.Title)</td>
                     <td>@Html.DisplayFor(modelItem => item.Genres)</td>
-                    <td>@using (Html.BeginForm())
+                    <td>
+                    @if (Request.IsAuthenticated)
                     {
-                        <input type="hidden" value="0" name="InnerUserID" />
-                        <input type="hidden" value="@User.Identity.GetUserId()" name="LocalID" />
-                        <input type="text" name="Rating" />
-                        <input type="hidden" value="@item.MovieID" name="MovieID" />
-                        <input type="hidden" value="@item" name="Movies" />
-                        <input type="submit" value="Отправить" />
-                         <!--<div class="form-group col-xs-3">
-                            <label for="Rating">Оценка:</label>
-                            <input type="text" class="form-control" id="Rating">
-                            <button type="submit" class="btn btn-default">Отправить</button>
-                        </div>-->
-                    }</td>
+                        using (Html.BeginForm())
+                        {
+                            <input type="hidden" value="0" name="InnerUserID" />
+                            <input type="text" name="Rating" />
+                            <input type="hidden" value="@item.MovieID" name="MovieID" />
+                            <input type="submit" value="Отправить" />
+                            <!--<div class="form-group col-xs-3">
+                                <label for="Rating">Оценка:</label>
+                                <input type="text" class="form-control" id="Rating">
+                                <button type="submit" class="btn btn-default">Отправить</button>
+                            </div>-->
+                        }
+                    }
+                    //else if ()
+                    //{
+
+                    //}
+                    else
+                    {
+                        @Html.ActionLink("Вход", "Login", "Account", routeValues: null, htmlAttributes: new { @class = "btn btn-default" })
+                    }
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
+    <div>
+        <ul class="pagination">
+            @if (!ViewBag.previousPageStat)
+            {
+                <li class="disabled"><a href="">Предыдущая страница</a></li>
+            }
+            else
+            {
+                <li><a href="/Home/Index/@ViewBag.previousPage">Предыдущая страница</a></li>
+            }
+            @if (!ViewBag.nextPageStat)
+            {
+                <li class="disabled"><a href="">Следующая страница</a></li>
+            }
+            else
+            {
+                <li><a href="/Home/Index/@ViewBag.nextPage">Следующая страница</a></li>
+            }
+        </ul>
+    </div>
 </div> 
