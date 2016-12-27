@@ -74,6 +74,13 @@ namespace Kursach.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Movie(int id)
+        {
+            var movies = db.Links.Where(b => b.MovieID == id).First();
+            //request: name, actors, description, etc
+            return View();
+        }
+
         [Authorize]
         public ActionResult Recomendation()
         {
@@ -309,13 +316,6 @@ namespace Kursach.Controllers
             }
 
             return RedirectToAction("Index");
-        }
-
-        public ActionResult Kino()
-        {
-            ApplicationUserManager userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            ApplicationUser user = userManager.FindByName(User.Identity.Name);
-            return View();
         }
     }
 }

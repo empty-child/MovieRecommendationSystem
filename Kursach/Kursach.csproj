@@ -240,6 +240,7 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Roles\UserRole.cshtml" />
     <Content Include="Views\Home\Recomendation.cshtml" />
+    <Content Include="Views\Home\Movie.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\Upload\" />
