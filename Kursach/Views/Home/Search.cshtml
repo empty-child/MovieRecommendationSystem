@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Kursach.Models.MoviesModel>
+@{
+    ViewBag.Title = "Результаты поиска";
+}
+
+<h2>Результаты поиска</h2>
+
+<h4>Найдено совпадений: @ViewBag.count</h4>
+
+@if (ViewBag.isFound)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Название фильма</th>
+                <th>Жанры</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(item.Title, "Movie", "Home", new { id = item.MovieID }, null)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Genres)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

@@ -22,7 +22,7 @@
         @for (int i = 0; i < ViewBag.movieTitle.Length; i++)
         {
             <tr>
-                <td>@ViewBag.movieTitle[i]</td>
+                <td>@Html.ActionLink((string)ViewBag.movieTitle[i], "Movie", "Home", new { id = ViewBag.movieID[i] }, null)</td>
                 <td>
                     <div class="progress">
                         <div class="progress-bar @ViewBag.progressBarType[i]" role="progressbar" style="width:@ViewBag.recommendationCoefficient[i]">

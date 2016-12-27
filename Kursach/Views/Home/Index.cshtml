@@ -1,12 +1,30 @@
-﻿@model IEnumerable<Kursach.Models.MoviesModel>
-@{
-    ViewBag.Title = "Домашняя страница";
+﻿@{
+    ViewBag.Title = "Фильмотека";
 }
 
 <h2>Список картин</h2>
 
+@using (Html.BeginForm("Search", "Home", FormMethod.Post))
+{
+<div class="container">
+    <div class="row">
+        <div class="col-md-offset-9 col-md-3">
+            <div class="input-group">
+                <input class="form-control" name="movie" placeholder="Поиск...">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+
 <div>
-    <table class="table table-striped">
+    <table class="table">
         <thead>
             <tr>
                 <th>Название фильма</th>
@@ -15,30 +33,30 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @for (int i = 0; i < ViewBag.count; i++)
             {
                 <tr>
-                    <td>@Html.ActionLink(item.Title, "Movie", "Home", new { id = item.MovieID }, null)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Genres)</td>
+                    <td>@Html.ActionLink((string)ViewBag.model[i].Title, "Movie", "Home", new { id = ViewBag.model[i].MovieID }, null)</td>
+                    <td>@ViewBag.model[i].Genres</td>
                     <td class="col-md-2">
-                        @if (Request.IsAuthenticated)
+                        @if (ViewBag.isViewed[i])
+                        {
+                            <p class="text-success text-center list-inline">Фильм оценен</p>
+                        }
+                        else if (Request.IsAuthenticated)
                         {
                             using (Html.BeginForm())
                             {
                                 <input type="hidden" value="0" name="InnerUserID" />
-                                <input type="hidden" value="@item.MovieID" name="MovieID" />
+                                <input type="hidden" value="@ViewBag.model[i].MovieID" name="MovieID" />
                                 <div class="input-group">
-                                    <input class="form-control" id="Rating">
+                                    <input class="form-control" name="Rating">
                                     <span class="input-group-btn">
                                         <button type="submit" class="btn btn-default">Отправить</button>
                                     </span>
                                 </div>
                             }
                         }
-                        //else if ()
-                        //{
-
-                        //}
                         else
                         {
                             @Html.ActionLink("Вход", "Login", "Account", routeValues: null, htmlAttributes: new { @class = "btn btn-default" })

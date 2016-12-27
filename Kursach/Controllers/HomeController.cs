@@ -10,6 +10,9 @@ using System.Configuration;
 using System.Data.SqlClient;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity;
+using System.Net;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Kursach.Controllers
 {
@@ -20,11 +23,24 @@ namespace Kursach.Controllers
         public ActionResult Index(int? id)
         {
             var movies = db.Movies;
-            ViewBag.userID = User.Identity.GetUserId();
-            if (id == null)
+            string userID = User.Identity.GetUserId();
+            List<MoviesModel> model;
+            bool[] isViewed;
+            if (id == null || id == 0)
             {
                 ViewBag.previousPageStat = false;
-                var model = movies.Take(20).ToList();
+                model = movies.Take(20).ToList();
+                isViewed = new bool[model.Count()];
+                int i = 0;
+                foreach (var movie in model)
+                {
+                    if (movie.InnerUsers.Where(r => r.LocalID == userID).Count() == 0)
+                    {
+                        isViewed[i] = false;
+                    }
+                    else isViewed[i] = true;
+                    i++;
+                }
                 if (model.Count() < 20)
                 {
                     ViewBag.nextPageStat = false;
@@ -34,20 +50,24 @@ namespace Kursach.Controllers
                     ViewBag.nextPageStat = true;
                     ViewBag.nextPage = 1;
                 }
-                return View(model);
             }
             else
             {
-                if (id == 0)
+                ViewBag.previousPageStat = true;
+                ViewBag.previousPage = id - 1;
+                
+                model = movies.OrderBy(p => p.ID).Skip(0 + 20 * (int)id).Take(20).ToList();
+                isViewed = new bool[model.Count()];
+                int i = 0;
+                foreach(var movie in model)
                 {
-                    ViewBag.previousPageStat = false;
+                    if (movie.InnerUsers.Where(r => r.LocalID == userID).Count() == 0)
+                    {
+                        isViewed[i] = false;
+                    }
+                    else isViewed[i] = true;
+                    i++;
                 }
-                else
-                {
-                    ViewBag.previousPageStat = true;
-                    ViewBag.previousPage = id - 1;
-                }
-                var model = movies.OrderBy(p => p.ID).Skip(0 + 20 * (int)id).Take(20).ToList();
                 if (model.Count() < 20)
                 {
                     ViewBag.nextPageStat = false;
@@ -57,14 +77,18 @@ namespace Kursach.Controllers
                     ViewBag.nextPageStat = true;
                     ViewBag.nextPage = id + 1;
                 }
-                return View(model);
             }
+            ViewBag.model = model;
+            ViewBag.isViewed = isViewed;
+            ViewBag.count = model.Count();
+            return View();
         }
 
         [Authorize]
         [HttpPost]
         public ActionResult Index(InnerUser data)
         {
+            if (data.Rating > 5 || data.Rating < 0) return new HttpStatusCodeResult(400);
             string userID = User.Identity.GetUserId();
             var movies = db.Movies.Where(b => b.MovieID == data.MovieID).FirstOrDefault();
             data.Movies = movies;
@@ -74,11 +98,38 @@ namespace Kursach.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Search(string movie)
+        {
+            if (movie == null) return RedirectToAction("Index");
+            ViewBag.isFound = true;
+            var result = db.Movies.Where(x=>x.Title.Contains(movie));
+            ViewBag.count = result.Count();
+            if (result.Count() == 0)
+            {
+                ViewBag.isFound = false;
+                return View();
+            }
+            return View(result);
+        }
+
         public ActionResult Movie(int id)
         {
-            var movies = db.Links.Where(b => b.MovieID == id).First();
-            //request: name, actors, description, etc
-            return View();
+            var movies = db.Movies.Where(r => r.MovieID == id).First();
+            string userID = User.Identity.GetUserId();
+            bool isViewed;
+            ViewBag.movieID = movies.MovieID;
+            if (movies.InnerUsers.Where(r => r.LocalID == userID).Count() == 0)
+            {
+                isViewed = false;
+            }
+            else isViewed = true;
+            ViewBag.isViewed = isViewed;
+
+            var movie = db.Links.Where(b => b.MovieID == id).First();
+            string response = GetReq(@"https://api.themoviedb.org/3/movie/"+movie.TmdbID+"?api_key=###&language=ru-RU");
+            if (response == null) return new HttpStatusCodeResult(502);
+            MovieRecord record = JsonConvert.DeserializeObject<MovieRecord>(response);
+            return View(record);
         }
 
         [Authorize]
@@ -89,6 +140,7 @@ namespace Kursach.Controllers
             var movies = db.Movies;
             int i = 0;
             string[] movieTitle = new string[recommendation.Count()];
+            string[] movieID = new string[recommendation.Count()];
             string[] progressBarType = new string[recommendation.Count()];
             string[] recommendationCoefficient = new string[recommendation.Count()];
 
@@ -96,6 +148,7 @@ namespace Kursach.Controllers
             {
                 var recommendedMovie = movies.Where(p => p.MovieID == dict.Key).First();
                 movieTitle[i] = recommendedMovie.Title;
+                movieID[i] = recommendedMovie.Title;
                 recommendationCoefficient[i] = Math.Round(dict.Value * 100, 0).ToString() + "%";
                 if(Math.Round(dict.Value * 100, 0) <= 15)
                 {
@@ -113,6 +166,7 @@ namespace Kursach.Controllers
             }
             ViewBag.movieTitle = movieTitle;
             ViewBag.recommendationCoefficient = recommendationCoefficient;
+            ViewBag.movieID = movieID;
             ViewBag.progressBarType = progressBarType;
             return View();
         }
@@ -316,6 +370,29 @@ namespace Kursach.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        private static string GetReq(string site, bool addHeader = false, string headerData = "", string requestMethod = "GET")
+        {
+            string req = site;
+            WebRequest request = WebRequest.Create(req);
+            if (addHeader)
+            {
+                request.Headers.Add(headerData);
+            }
+            request.Method = requestMethod;
+            try
+            {
+                WebResponse response = request.GetResponse();
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+                string responseFromServer = reader.ReadToEnd();
+                return responseFromServer;
+            }
+            catch (WebException e)
+            {
+                return null;
+            }
         }
     }
 }

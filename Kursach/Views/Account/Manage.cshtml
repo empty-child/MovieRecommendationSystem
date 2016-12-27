@@ -1,0 +1,29 @@
+﻿@model IEnumerable<Kursach.Models.InnerUser>
+@{
+    ViewBag.Title = "Управление аккаунтом";
+}
+
+<h2>Управление аккаунтом</h2>
+
+<p>Просмотренные фильмы</p>
+
+@if (ViewBag.isFound)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Название фильма</th>
+                <th>Оценка</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(item.Movies.Title, "Movie", "Home", new { id = item.MovieID }, null)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Rating)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

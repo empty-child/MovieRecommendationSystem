@@ -58,6 +58,7 @@ namespace Kursach.Models
     {
         public int InnerUserID { get; set; }
         public string LocalID { get; set; }
+        [Range(0.0, 5.0, ErrorMessage = "Enter a value between 1 and 1000")]
         public float Rating { get; set; }
 
         [ForeignKey("Movies")]

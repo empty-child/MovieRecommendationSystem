@@ -96,5 +96,20 @@ namespace Kursach.Controllers
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
+
+        CommonContext db = new CommonContext();
+
+        public ActionResult Manage()
+        {
+            string userID = User.Identity.GetUserId();
+            ViewBag.isFound = true;
+            var viewedMovies = db.InnerUsers.Where(x => x.LocalID == userID).ToList();
+            if (viewedMovies.Count() == 0)
+            {
+                ViewBag.isFound = false;
+                return View();
+            }
+            return View(viewedMovies);
+        }
     }
 }
