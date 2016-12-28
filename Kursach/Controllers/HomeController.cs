@@ -88,7 +88,7 @@ namespace Kursach.Controllers
         [HttpPost]
         public ActionResult Index(InnerUser data)
         {
-            if (data.Rating > 5 || data.Rating < 0) return new HttpStatusCodeResult(400);
+            if (data.Rating > 5.0 || data.Rating <= 0) return new HttpStatusCodeResult(400);
             string userID = User.Identity.GetUserId();
             var movies = db.Movies.Where(b => b.MovieID == data.MovieID).FirstOrDefault();
             data.Movies = movies;
@@ -140,7 +140,7 @@ namespace Kursach.Controllers
             var movies = db.Movies;
             int i = 0;
             string[] movieTitle = new string[recommendation.Count()];
-            string[] movieID = new string[recommendation.Count()];
+            int[] movieID = new int[recommendation.Count()];
             string[] progressBarType = new string[recommendation.Count()];
             string[] recommendationCoefficient = new string[recommendation.Count()];
 
@@ -148,7 +148,7 @@ namespace Kursach.Controllers
             {
                 var recommendedMovie = movies.Where(p => p.MovieID == dict.Key).First();
                 movieTitle[i] = recommendedMovie.Title;
-                movieID[i] = recommendedMovie.Title;
+                movieID[i] = recommendedMovie.MovieID;
                 recommendationCoefficient[i] = Math.Round(dict.Value * 100, 0).ToString() + "%";
                 if(Math.Round(dict.Value * 100, 0) <= 15)
                 {
