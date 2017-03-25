@@ -8,8 +8,12 @@
 
     <div>
         @Html.ValidationSummary(true, "")
-        <p>Название:  @Html.EditorFor(model => model.Name)</p>
-        <p>Описание: @Html.EditorFor(model => model.Description)</p>
-        <p><input type="submit" value="Добавить" /></p>
+        <div class="form-group">
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "Имя роли" } })
+        </div>
+        <div>
+            @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", placeholder = "Описание роли" } })
+        </div>
+        <button class="btn" type="submit">Добавить</button>
     </div>
 }

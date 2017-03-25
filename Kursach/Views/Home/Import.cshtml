@@ -1,13 +1,13 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Import";
 }
 
 <h2>Изменение базы (расширение или сжатие)</h2>
 
-<h3>Выберите файл для загрузки</h3>
-@using (Html.BeginForm("Import", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data"}))
 {
-    <input type="file" name="upload" /><br>
-    <input type="submit" value="Выгрузить" />
+    <input type="file" accept=".csv" name="uploads" /><br>
+    <input type="file" accept=".csv" name="uploads" /><br>
+    <input type="file" accept=".csv" name="uploads" /><br>
+    @*<input type="submit" value="Загрузить" />*@
 }

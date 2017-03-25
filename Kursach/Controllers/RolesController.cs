@@ -20,7 +20,15 @@ namespace Kursach.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
+        private ApplicationUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+        }
+
+        [Authorize(Roles = "admin")]
         public ActionResult Index()
         {
             return View(RoleManager.Roles);
@@ -95,14 +103,42 @@ namespace Kursach.Controllers
             return RedirectToAction("Index");
         }
 
-        //public ActionResult UserRole()
-        //{
-        //    IList<string> roles = new List<string> { "Роль не определена" };
-        //    ApplicationUserManager userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-        //    ApplicationUser user = userManager.FindByName(User.Identity.Name);
-        //    if (user != null) roles = userManager.AddToRole(user.Id, "")
-        //    ViewBag.Roles = roles;
-        //    return View(ViewBag.Roles);
-        //}
+        [HttpGet]
+        public ActionResult UserRole()
+        {
+            var users = UserManager.Users.ToList();
+            var rolesList = RoleManager.Roles.ToList();
+            SortedList<string, List<string>> userRoles = new SortedList<string, List<string>>();
+            foreach (var user in users)
+            {
+                List<string> rolesArray = new List<string>(user.Roles.Count());
+                foreach (var userRole in user.Roles)
+                {
+                    var role = RoleManager.FindById(userRole.RoleId);
+                    rolesArray.Add(role.Name);
+                }
+                userRoles.Add(user.UserName, rolesArray);
+            }
+
+            var roles = RoleManager.Roles.Select(p => p.Name).ToList();
+
+            SelectList rolesName = new SelectList(roles, "Name");
+
+            ViewBag.rolesName = rolesName;
+            ViewBag.userRoles = userRoles;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UserRole(string Name, string roleName)
+        {
+            ApplicationUser id = await UserManager.FindByNameAsync(Name);
+            if (id != null)
+            {
+                IdentityResult result = await UserManager.AddToRoleAsync(id.Id, roleName);
+            }
+            return RedirectToAction("Index");
+        }
     }
 }

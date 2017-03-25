@@ -1,7 +1,37 @@
-﻿@foreach (string s in ViewBag.Roles)
-
-{
-
-    <li>@s </li>
-
+﻿@{
+    ViewBag.Title = "Назначение ролей";
 }
+
+<table class="table">
+    <tr>
+        <th>Имя пользователя</th>
+        <th>Нынешняя роль</th>
+        <th>Выбор роли</th>
+    </tr>
+
+    @foreach (var item in ViewBag.userRoles.Keys)
+    {
+        <tr>
+            <td>@item</td>
+            <td>
+                @foreach (var role in ViewBag.userRoles[item])
+                {
+                    @role<br />
+                }
+            </td>
+            <td class="col-md-4">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" value="@item" name="Name" />
+                    <div class="input-group">
+                        @Html.DropDownList("roleName", ViewBag.rolesName as SelectList, null, new { @class = "form-control" })
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default">Отправить</button>
+                        </span>
+                    </div>
+                }
+            </td>
+        </tr>
+    }
+</table>

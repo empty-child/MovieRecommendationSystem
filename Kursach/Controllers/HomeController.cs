@@ -285,92 +285,104 @@ namespace Kursach.Controllers
             return View();
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public ActionResult Import(HttpPostedFileBase upload)
-        {
-            string fileName = null;
-            if (upload != null)
-            {
-                // получаем имя файла
-                fileName = System.IO.Path.GetFileName(upload.FileName);
-                // сохраняем файл в папку Files в проекте
-                upload.SaveAs(Server.MapPath("~/App_Data/Upload/" + fileName));
-            }
+        //[Authorize(Roles = "admin")]
+        //[HttpPost]
+        //public ActionResult Import(IEnumerable<HttpPostedFileBase> uploads)
+        //{
+        //    List<string> fileNames = new List<string>();
+        //    foreach (var file in uploads)
+        //    {
+        //        if (file != null)
+        //        {
+        //            // получаем имя файла
+        //            fileNames.Add(Path.GetFileName(file.FileName));
+        //            // сохраняем файл в папку Files в проекте
+        //            file.SaveAs(Server.MapPath("~/App_Data/Upload/" + Path.GetFileName(file.FileName)));
+        //        }
+        //    }
+
+        //    //string fileName = null;
+        //    //if (upload != null)
+        //    //{
+        //    //    // получаем имя файла
+        //    //    fileName = Path.GetFileName(upload.FileName);
+        //    //    // сохраняем файл в папку Files в проекте
+        //    //    upload.SaveAs(Server.MapPath("~/App_Data/Upload/" + fileName));
+        //    //}
 
 
-            DataTable dt = new DataTable();
+        //    DataTable dt = new DataTable();
 
-            /* moviesmodel
-            dt.Columns.AddRange(new DataColumn[4] {new DataColumn("ID", typeof(int)),
-            new DataColumn("MovieID", typeof(int)),
-            new DataColumn("Title", typeof(string)),
-            new DataColumn("Genres",typeof(string))});
-            */
+        //    /* moviesmodel
+        //    dt.Columns.AddRange(new DataColumn[4] {new DataColumn("ID", typeof(int)),
+        //    new DataColumn("MovieID", typeof(int)),
+        //    new DataColumn("Title", typeof(string)),
+        //    new DataColumn("Genres",typeof(string))});
+        //    */
 
-            /* linksmodels
-            dt.Columns.AddRange(new DataColumn[4] {new DataColumn("LinksModelsID", typeof(int)),
-            new DataColumn("MovieID", typeof(int)),
-            new DataColumn("ImdbID", typeof(string)),
-            new DataColumn("TmdbID",typeof(string))});
-            */
-
-
-            dt.Columns.AddRange(new DataColumn[5] {new DataColumn("RatingsModelsID", typeof(int)),
-            new DataColumn("UserID", typeof(int)),
-            new DataColumn("MovieID", typeof(int)),
-            new DataColumn("Rating",typeof(float)),
-            new DataColumn("Timestamp",typeof(long))});
+        //    /* linksmodels
+        //    dt.Columns.AddRange(new DataColumn[4] {new DataColumn("LinksModelsID", typeof(int)),
+        //    new DataColumn("MovieID", typeof(int)),
+        //    new DataColumn("ImdbID", typeof(string)),
+        //    new DataColumn("TmdbID",typeof(string))});
+        //    */
 
 
+        //    dt.Columns.AddRange(new DataColumn[5] {new DataColumn("RatingsModelsID", typeof(int)),
+        //    new DataColumn("UserID", typeof(int)),
+        //    new DataColumn("MovieID", typeof(int)),
+        //    new DataColumn("Rating",typeof(float)),
+        //    new DataColumn("Timestamp",typeof(long))});
 
-            string csvData = Server.MapPath("~/App_Data/Upload/" + fileName);
 
-            // You can also read from a file
-            Microsoft.VisualBasic.FileIO.TextFieldParser parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(csvData);
 
-            parser.HasFieldsEnclosedInQuotes = true;
-            parser.SetDelimiters(",");
+        //    string csvData = Server.MapPath("~/App_Data/Upload/" + fileName);
 
-            int it = 1;
-            string[] fields;
-            bool colNames = true;
-            while (!parser.EndOfData)
-            {
-                fields = parser.ReadFields();
-                if (!colNames)
-                {
-                    dt.Rows.Add();
-                    int i = 0;
-                    dt.Rows[dt.Rows.Count - 1][i] = it;
-                    i++;
-                    foreach (string field in fields)
-                    {
-                        dt.Rows[dt.Rows.Count - 1][i] = field.Replace('.', ',');
-                        i++;
-                    }
-                    it++;
-                }
-                else colNames = false;
-            }
+        //    // You can also read from a file
+        //    Microsoft.VisualBasic.FileIO.TextFieldParser parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(csvData);
 
-            parser.Close();
+        //    parser.HasFieldsEnclosedInQuotes = true;
+        //    parser.SetDelimiters(",");
 
-            string consString = ConfigurationManager.ConnectionStrings["CommonContext"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(consString))
-            {
-                using (SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(con))
-                {
-                    //Set the database table name
-                    sqlBulkCopy.DestinationTableName = "dbo.RatingsModels";
-                    con.Open();
-                    sqlBulkCopy.WriteToServer(dt);
-                    con.Close();
-                }
-            }
+        //    int it = 1;
+        //    string[] fields;
+        //    bool colNames = true;
+        //    while (!parser.EndOfData)
+        //    {
+        //        fields = parser.ReadFields();
+        //        if (!colNames)
+        //        {
+        //            dt.Rows.Add();
+        //            int i = 0;
+        //            dt.Rows[dt.Rows.Count - 1][i] = it;
+        //            i++;
+        //            foreach (string field in fields)
+        //            {
+        //                dt.Rows[dt.Rows.Count - 1][i] = field.Replace('.', ',');
+        //                i++;
+        //            }
+        //            it++;
+        //        }
+        //        else colNames = false;
+        //    }
 
-            return RedirectToAction("Index");
-        }
+        //    parser.Close();
+
+        //    string consString = ConfigurationManager.ConnectionStrings["CommonContext"].ConnectionString;
+        //    using (SqlConnection con = new SqlConnection(consString))
+        //    {
+        //        using (SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(con))
+        //        {
+        //            //Set the database table name
+        //            sqlBulkCopy.DestinationTableName = "dbo.RatingsModels";
+        //            con.Open();
+        //            sqlBulkCopy.WriteToServer(dt);
+        //            con.Close();
+        //        }
+        //    }
+
+        //    return RedirectToAction("Index");
+        //}
 
         private static string GetReq(string site, bool addHeader = false, string headerData = "", string requestMethod = "GET")
         {
